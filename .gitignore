@@ -1,0 +1,6 @@
+*.o
+aes-crypt-util
+fusehello
+fusexmp
+xattr-util
+pa5-encfs
