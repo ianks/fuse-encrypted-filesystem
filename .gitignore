@@ -4,3 +4,5 @@ fusehello
 fusexmp
 xattr-util
 pa5-encfs
+.syntastic_c_config
+mir/
