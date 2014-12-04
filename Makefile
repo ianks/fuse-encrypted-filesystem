@@ -65,7 +65,10 @@ aes-crypt.o: aes-crypt.c aes-crypt.h
 unmount:
 	fusermount -u mir
 
-mount:
+debug: pa5-encfs
+	./pa5-encfs -d mnt/ mir/
+
+mount: pa5-encfs
 	./pa5-encfs mnt/ mir/
 
 clean:
