@@ -10,8 +10,8 @@
 
 CC = gcc
 
-CFLAGSFUSE = `pkg-config fuse --cflags`
-LLIBSFUSE = `pkg-config fuse --libs`
+CFLAGSFUSE = -D_FILE_OFFSET_BITS=64 -I/usr/include/fuse
+LLIBSFUSE = -pthread -lfuse
 LLIBSOPENSSL = -lcrypto
 
 CFLAGS = -c -g -Wall -Wextra
@@ -61,6 +61,12 @@ aes-crypt-util.o: aes-crypt-util.c aes-crypt.h
 
 aes-crypt.o: aes-crypt.c aes-crypt.h
 	$(CC) $(CFLAGS) $<
+
+unmount:
+	fusermount -u mir
+
+mount:
+	./pa5-encfs mnt/ mir/
 
 clean:
 	rm -f $(FUSE_EXAMPLES)
