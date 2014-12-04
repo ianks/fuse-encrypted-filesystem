@@ -37,6 +37,7 @@
 #include <fuse.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <dirent.h>
@@ -45,6 +46,12 @@
 #ifdef HAVE_SETXATTR
 #include <sys/xattr.h>
 #endif
+
+typedef struct xmp_state {
+	char *root_dir;
+} xmp_state;
+
+#define XMP_DATA ((struct xmp_state *) fuse_get_context()->private_data)
 
 static int xmp_getattr(const char *path, struct stat *stbuf)
 {
@@ -304,7 +311,8 @@ static int xmp_statfs(const char *path, struct statvfs *stbuf)
 	return 0;
 }
 
-static int xmp_create(const char* path, mode_t mode, struct fuse_file_info* fi) {
+static int xmp_create(const char* path, mode_t mode, struct fuse_file_info* fi)
+{
 
     (void) fi;
 
@@ -408,8 +416,19 @@ static struct fuse_operations xmp_oper = {
 #endif
 };
 
+xmp_state *xmp_data;
+
 int main(int argc, char *argv[])
 {
 	umask(0);
+
+	/* Store pointer to root directory for later. */
+	xmp_data = malloc(sizeof(struct xmp_state));
+	xmp_data->root_dir = realpath(argv[argc-2], NULL);
+
+	argv[argc-2] = argv[argc-1];
+	argv[argc-1] = NULL;
+	argc--;
+
 	return fuse_main(argc, argv, &xmp_oper, NULL);
 }
