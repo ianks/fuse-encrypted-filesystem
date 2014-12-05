@@ -472,9 +472,8 @@ static struct fuse_operations xmp_oper = {
 
 int main(int argc, char *argv[])
 {
-  const char *usage = "<dir_to_mirror> <mountpoint> [[-e|--encrypt] | [-d|--decrypt] password]";
+  const char *usage = "<dir_to_mirror> <mountpoint> [-e|--encrypt password]";
   int encrypt = 0;
-  int decrypt = 0;
 
 	umask(0);
 
@@ -498,10 +497,8 @@ int main(int argc, char *argv[])
   if (argc == 5) {  /* encrypt/decrypt and password */
     if (strcmp(argv[3], "-e") == 0 || strcmp(argv[3], "--encrypt") == 0)
       encrypt = 1;
-    else if (strcmp(argv[3], "-d") == 0 || strcmp(argv[3], "--decrypt") == 0)
-      decrypt = 1;
     else  {
-      fprintf(stderr, "Error: 3rd argmument given does not specify encryption or decryption\n");
+      fprintf(stderr, "Error: 3rd argmument present, but does not specify encryption\n");
       fprintf(stderr, "%s\n", usage);
       return EXIT_FAILURE;
     }
