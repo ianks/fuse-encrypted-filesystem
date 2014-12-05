@@ -2,5 +2,5 @@ Encrypted Filesystem
 ====================
 
 ### Usage:
-  `$ make pa5-encfs`
-  `$ ./pa5-encfs <MIRROR> <MOUNT>`
+  1. `$ make pa5-encfs`
+  2. `$ ./pa5-encfs <MIRROR> <MOUNT>`
