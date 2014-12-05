@@ -472,18 +472,18 @@ static struct fuse_operations xmp_oper = {
 
 int main(int argc, char *argv[])
 {
-  const char *usage = "<dir_to_mirror> <mountpoint> [-e|--encrypt password]";
-  int encrypt = 0;
+	const char *usage = "<dir_to_mirror> <mountpoint> [-e|--encrypt password]";
+	int encrypt = 0;
 
 	umask(0);
 
-  /*
-   * argc:
-   *   < 3: not enough args
-   *   == 4: encrypt or decrypt, but no password, or password, but not
-   *         encrypt / decrypt
-   *   > 5: extraneous arg(s)
-   */
+	/*
+	 * argc:
+	 *   < 3: not enough args
+	 *   == 4: encrypt or decrypt, but no password, or password, but not
+	 *         encrypt / decrypt
+	 *   > 5: extraneous arg(s)
+	 */
 	if(argc < 3 || argc == 4 || argc > 5){
 		fprintf(stderr, "%s\n", usage);
 		return EXIT_FAILURE;
@@ -494,15 +494,15 @@ int main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
-  if (argc == 5) {  /* encrypt/decrypt and password */
-    if (strcmp(argv[3], "-e") == 0 || strcmp(argv[3], "--encrypt") == 0)
-      encrypt = 1;
-    else  {
-      fprintf(stderr, "Error: 3rd argmument present, but does not specify encryption\n");
-      fprintf(stderr, "%s\n", usage);
-      return EXIT_FAILURE;
-    }
-  }
+	if (argc == 5) {  /* encrypt/decrypt and password */
+		if (strcmp(argv[3], "-e") == 0 || strcmp(argv[3], "--encrypt") == 0)
+			encrypt = 1;
+		else  {
+			fprintf(stderr, "Error: 3rd argmument present, but does not specify encryption\n");
+			fprintf(stderr, "%s\n", usage);
+			return EXIT_FAILURE;
+		}
+	}
 
 	argv[1] = argv[2];
 	argv[2] = NULL;
