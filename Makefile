@@ -66,10 +66,10 @@ unmount:
 	fusermount -u mir
 
 debug: pa5-encfs
-	./pa5-encfs -d mnt/ mir/
+	./pa5-encfs -d to_mnt/ mir/
 
 mount: pa5-encfs
-	./pa5-encfs mnt/ mir/
+	./pa5-encfs to_mnt/ mir/
 
 clean:
 	rm -f $(FUSE_EXAMPLES)

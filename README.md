@@ -8,7 +8,7 @@ Encrypted Filesystem
 ### Makefile Commands:
   * ```$ make pa5-encfs```
   * ```$ make mount```
-   * Creates a test fuse mount with mnt/ and mir/ directories
+   * Creates a test fuse mount with to_mnt/ and mir/ directories
   * ```$ make unmount```
    * Unmounts the test fuse mount
   * ```$ make clean```

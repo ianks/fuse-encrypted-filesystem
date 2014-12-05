@@ -1,5 +1,5 @@
 describe 'mir' do
-  before(:all) { `make pa5-encfs && ./pa5-encfs mnt/ mir/` }
+  before(:all) { `make pa5-encfs && ./pa5-encfs to_mnt/ mir/` }
   after(:all) { `fusermount -u mir/ && make clean` }
 
   subject{ Dir['mir/**/*'] }
