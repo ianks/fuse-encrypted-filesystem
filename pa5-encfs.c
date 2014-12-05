@@ -50,6 +50,7 @@
 /* #define XMP_DATA ((struct xmp_state *) fuse_get_context()->private_data) */
 
 char* root_path;
+int encrypted = 0;
 
 char *prefix_path(const char *path)
 {
@@ -473,7 +474,6 @@ static struct fuse_operations xmp_oper = {
 int main(int argc, char *argv[])
 {
 	const char *usage = "<dir_to_mirror> <mountpoint> [-e|--encrypt password]";
-	int encrypt = 0;
 
 	umask(0);
 
@@ -496,7 +496,7 @@ int main(int argc, char *argv[])
 
 	if (argc == 5) {  /* encrypt/decrypt and password */
 		if (strcmp(argv[3], "-e") == 0 || strcmp(argv[3], "--encrypt") == 0)
-			encrypt = 1;
+			encrypted = 1;
 		else  {
 			fprintf(stderr, "Error: 3rd argmument present, but does not specify encryption\n");
 			fprintf(stderr, "%s\n", usage);
