@@ -472,20 +472,43 @@ static struct fuse_operations xmp_oper = {
 
 int main(int argc, char *argv[])
 {
+  const char *usage = "<dir_to_mirror> <mountpoint> [[-e|--encrypt] | [-d|--decrypt] password]";
+  int encrypt = 0;
+  int decrypt = 0;
+
 	umask(0);
 
-	if(argc != 3){
-		fprintf(stderr, "ERR: Include only mirror and mount points.\n");
+  /*
+   * argc:
+   *   < 3: not enough args
+   *   == 4: encrypt or decrypt, but no password, or password, but not
+   *         encrypt / decrypt
+   *   > 5: extraneous arg(s)
+   */
+	if(argc < 3 || argc == 4 || argc > 5){
+		fprintf(stderr, "%s\n", usage);
 		return EXIT_FAILURE;
 	}
 
-	if ((root_path = realpath(argv[argc-2], NULL)) == NULL){
+	if ((root_path = realpath(argv[1], NULL)) == NULL){
 		fprintf(stderr, "Please enter a valid root directory name.\n");
 		return EXIT_FAILURE;
 	}
 
-	argv[argc-2] = argv[argc-1];
-	argv[argc-1] = NULL;
+  if (argc == 5) {  /* encrypt/decrypt and password */
+    if (strcmp(argv[3], "-e") == 0 || strcmp(argv[3], "--encrypt") == 0)
+      encrypt = 1;
+    else if (strcmp(argv[3], "-d") == 0 || strcmp(argv[3], "--decrypt") == 0)
+      decrypt = 1;
+    else  {
+      fprintf(stderr, "Error: 3rd argmument given does not specify encryption or decryption\n");
+      fprintf(stderr, "%s\n", usage);
+      return EXIT_FAILURE;
+    }
+  }
+
+	argv[1] = argv[2];
+	argv[2] = NULL;
 	argc--;
 
 	return fuse_main(argc, argv, &xmp_oper, NULL);
