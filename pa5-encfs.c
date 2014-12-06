@@ -501,7 +501,7 @@ int main(int argc, char *argv[])
 			encrypted = 1;
 			strncpy(password, argv[4], MAX_BUF_SIZE);
 			password[MAX_BUF_SIZE-1] = '\0';
-    } else {
+		} else {
 			fprintf(stderr, "Error: 3rd argmument present, but does not specify encryption\n");
 			fprintf(stderr, "%s\n", usage);
 			return EXIT_FAILURE;
