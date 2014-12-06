@@ -44,7 +44,6 @@
 #include <dirent.h>
 #include <errno.h>
 #include <sys/time.h>
-#include <bsd/string.h>
 #ifdef HAVE_SETXATTR
 #include <sys/xattr.h>
 #endif
@@ -500,7 +499,8 @@ int main(int argc, char *argv[])
 	if (argc == 5) {  /* encrypt/decrypt and password */
 		if (strcmp(argv[3], "-e") == 0 || strcmp(argv[3], "--encrypt") == 0) {
 			encrypted = 1;
-			strlcpy(password, argv[4], MAX_BUF_SIZE);
+			strncpy(password, argv[4], MAX_BUF_SIZE);
+			password[MAX_BUF_SIZE-1] = '\0';
 		} else {
 			fprintf(stderr, "Error: 3rd argmument present, but does not specify encryption\n");
 			fprintf(stderr, "%s\n", usage);
