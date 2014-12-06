@@ -510,7 +510,7 @@ int main(int argc, char *argv[])
 
 	argv[1] = argv[2];
 	argv[2] = NULL;
-	argc--;
+	argc = 2;
 
 	return fuse_main(argc, argv, &xmp_oper, NULL);
 }
