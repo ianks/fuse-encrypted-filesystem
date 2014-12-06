@@ -24,6 +24,7 @@
 
 #define FUSE_USE_VERSION 28
 #define HAVE_SETXATTR
+#define MAX_BUF_SIZE 400
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -51,6 +52,7 @@
 
 char* root_path;
 int encrypted = 0;
+char password[MAX_BUF_SIZE];
 
 char *prefix_path(const char *path)
 {
@@ -495,9 +497,11 @@ int main(int argc, char *argv[])
 	}
 
 	if (argc == 5) {  /* encrypt/decrypt and password */
-		if (strcmp(argv[3], "-e") == 0 || strcmp(argv[3], "--encrypt") == 0)
+		if (strcmp(argv[3], "-e") == 0 || strcmp(argv[3], "--encrypt") == 0) {
 			encrypted = 1;
-		else  {
+      strncpy(password, argv[4], MAX_BUF_SIZE);
+      password[MAX_BUF_SIZE-1] = '\0';
+    } else {
 			fprintf(stderr, "Error: 3rd argmument present, but does not specify encryption\n");
 			fprintf(stderr, "%s\n", usage);
 			return EXIT_FAILURE;
