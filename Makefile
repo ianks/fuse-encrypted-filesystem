@@ -66,7 +66,7 @@ unmount:
 	fusermount -u mir
 
 debug: pa5-encfs
-	./pa5-encfs -d to_mnt/ mir/
+	./pa5-encfs to_mnt/ mir/ -d
 
 mount: pa5-encfs
 	./pa5-encfs to_mnt/ mir/
