@@ -50,6 +50,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include "aes-crypt.h"
+#include <linux/limits.h>
 #ifdef HAVE_SETXATTR
 #include <sys/xattr.h>
 #endif
@@ -292,18 +293,35 @@ static int xmp_utimens(const char *fuse_path, const struct timespec ts[2])
 	return 0;
 }
 
+void get_filename_from_file_ptr(FILE *ptr, char *buf) {
+	snprintf(buf, sizeof(buf), "/proc/self/fd/%d", fileno(ptr));
+	readlink(buf, buf, sizeof(buf));
+}
+
 static int xmp_open(const char *fuse_path, struct fuse_file_info *fi)
 {
-	char *path = prefix_path(fuse_path);
+	FILE *fp_encrypted, *fp_decrypted;
+	char *encrypted_filepath = prefix_path(fuse_path);
+	char buf[PATH_MAX];
+	int fd_decrypted;
 	int res;
-
-	/*
-	if (encrypted == 1)
-		do_crypt(FILE* in, FILE* out, int action, char* key_str);
-	*/
+	struct stat decrypted_stat;
 
 
-	res = open(path, fi->flags);
+	fp_encrypted = fopen(encrypted_filepath, "r");
+
+	if (encrypted && (access(encrypted_filepath, fi->flags) != -1)) {
+		fp_decrypted = tmpfile();
+		do_crypt(fp_encrypted, fp_decrypted, DECRYPT, password);
+	} else {
+		fp_decrypted = fp_encrypted;
+	}
+
+	get_filename_from_file_ptr(fp_decrypted, buf);
+	fprintf(stderr, "encrypted fp: %s", buf);
+
+	res = open(buf, fi->flags);
+
 	if (res == -1)
 		return -errno;
 
