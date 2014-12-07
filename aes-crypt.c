@@ -37,7 +37,7 @@ extern int do_crypt(FILE* in, FILE* out, int action, char* key_str){
     unsigned char key[32];
     unsigned char iv[32];
     int nrounds = 5;
-    
+
     /* tmp vars */
     int i;
 
@@ -59,7 +59,7 @@ extern int do_crypt(FILE* in, FILE* out, int action, char* key_str){
 	/* Init Engine */
 	EVP_CIPHER_CTX_init(&ctx);
 	EVP_CipherInit_ex(&ctx, EVP_aes_256_cbc(), NULL, key, iv, action);
-    }    
+    }
 
     /* Loop through Input File*/
     for(;;){
@@ -69,7 +69,7 @@ extern int do_crypt(FILE* in, FILE* out, int action, char* key_str){
 	    /* EOF -> Break Loop */
 	    break;
 	}
-	
+
 	/* If in cipher mode, perform cipher transform on block */
 	if(action >= 0){
 	    if(!EVP_CipherUpdate(&ctx, outbuf, &outlen, inbuf, inlen))
@@ -94,7 +94,7 @@ extern int do_crypt(FILE* in, FILE* out, int action, char* key_str){
 	    return 0;
 	}
     }
-    
+
     /* If in cipher mode, handle necessary padding */
     if(action >= 0){
 	/* Handle remaining cipher block + padding */
@@ -108,7 +108,7 @@ extern int do_crypt(FILE* in, FILE* out, int action, char* key_str){
 	fwrite(outbuf, sizeof(*inbuf), outlen, out);
 	EVP_CIPHER_CTX_cleanup(&ctx);
     }
-    
+
     /* Success */
     return 1;
 }
