@@ -506,7 +506,8 @@ static struct fuse_operations xmp_oper = {
 
 int main(int argc, char *argv[])
 {
-	const char *usage = "<dir_to_mirror> <mountpoint> [-e|--encrypt password]";
+	const char *usage = "<dir_to_mirror> <mountpoint> [-e|--encrypt password] [-d]";
+	int debug_argv = -1;
 
 	umask(0);
 
