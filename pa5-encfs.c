@@ -517,7 +517,7 @@ int main(int argc, char *argv[])
 	 *         encrypt / decrypt
 	 *   > 5: extraneous arg(s)
 	 */
-	if(argc < 3 || argc == 4 || argc > 5){
+	if(argc < 3 || argc > 6){
 		fprintf(stderr, "%s\n", usage);
 		return EXIT_FAILURE;
 	}
@@ -527,11 +527,20 @@ int main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
-	if (argc == 5) {  /* encrypt/decrypt and password */
+	if (argc > 3) {  /* encrypt/decrypt and password */
 		if (strcmp(argv[3], "-e") == 0 || strcmp(argv[3], "--encrypt") == 0) {
 			encrypted = 1;
+			if (argc < 5) { /* no password */
+				fprintf(stderr, "%s\n", usage);
+				fprintf(stderr, "missing password\n");
+				return EXIT_FAILURE;
+			}
 			strncpy(password, argv[4], MAX_BUF_SIZE);
 			password[MAX_BUF_SIZE-1] = '\0';
+			if (strcmp(argv[5], "-d") == 0)
+				debug_argv = 5;
+		} else if (strcmp(argv[3], "-d") == 0) {
+			debug_argv = 3;
 		} else {
 			fprintf(stderr, "Error: 3rd argmument present, but does not specify encryption\n");
 			fprintf(stderr, "%s\n", usage);
@@ -539,11 +548,19 @@ int main(int argc, char *argv[])
 		}
 	}
 
+
 	argv[1] = argv[2];
-	argv[2] = NULL;
+	if (debug_argv != -1)
+		argv[2] = argv[debug_argv];
+	else
+		argv[2] = NULL;
 	argv[3] = NULL;
 	argv[4] = NULL;
-	argc = 2;
+	argv[5] = NULL;
+	if (debug_argv)
+		argc = 3;
+	else
+		argc = 2;
 
 	return fuse_main(argc, argv, &xmp_oper, NULL);
 }
