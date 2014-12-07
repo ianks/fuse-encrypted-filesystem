@@ -25,6 +25,9 @@
 #define FUSE_USE_VERSION 28
 #define HAVE_SETXATTR
 #define MAX_BUF_SIZE 400
+#define ENCRYPT 1
+#define DECRYPT 0
+#define DO_NOTHING -1
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -44,6 +47,9 @@
 #include <dirent.h>
 #include <errno.h>
 #include <sys/time.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include "aes-crypt.h"
 #ifdef HAVE_SETXATTR
 #include <sys/xattr.h>
 #endif
@@ -289,8 +295,13 @@ static int xmp_utimens(const char *fuse_path, const struct timespec ts[2])
 static int xmp_open(const char *fuse_path, struct fuse_file_info *fi)
 {
 	char *path = prefix_path(fuse_path);
-
 	int res;
+
+	/*
+	if (encrypted == 1)
+		do_crypt(FILE* in, FILE* out, int action, char* key_str);
+	*/
+
 
 	res = open(path, fi->flags);
 	if (res == -1)
@@ -304,20 +315,40 @@ static int xmp_read(const char *fuse_path, char *buf, size_t size, off_t offset,
 		    struct fuse_file_info *fi)
 {
 	char *path = prefix_path(fuse_path);
-
-	int fd;
+	FILE *fp_encrypted, *fp_decrypted;
+	struct stat decrypted_stat;
+	int fd_decrypted;
 	int res;
-
 	(void) fi;
-	fd = open(path, O_RDONLY);
-	if (fd == -1)
+
+	/* This is a security leak, we should not be writing this to a tmpfile.
+		 Do not use this for an acutal encrypted FS */
+	if (encrypted)
+		fp_decrypted = tmpfile();
+
+	fp_encrypted = fopen(path, "r");
+
+	if (fp_encrypted == NULL)
 		return -errno;
 
-	res = pread(fd, buf, size, offset);
+	if (encrypted)
+		do_crypt(fp_encrypted, fp_decrypted, DECRYPT, password);
+	else
+		fp_decrypted = fp_encrypted;
+
+	fd_decrypted = fileno(fp_decrypted);
+
+	fstat(fd_decrypted, &decrypted_stat);
+
+	res = pread(fd_decrypted, buf, decrypted_stat.st_size, offset);
 	if (res == -1)
 		res = -errno;
 
-	close(fd);
+	if (fp_decrypted != fp_encrypted) {
+		fclose(fp_decrypted);
+		fclose(fp_encrypted);
+	} else
+		fclose(fp_decrypted);
 	return res;
 }
 
