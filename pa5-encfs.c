@@ -302,6 +302,15 @@ static int xmp_open(const char *fuse_path, struct fuse_file_info *fi)
 	return 0;
 }
 
+static inline int file_size(FILE *file) {
+    struct stat st;
+
+    if (fstat(fileno(file), &st) == 0)
+        return st.st_size;
+
+    return -1;
+}
+
 static int xmp_read(const char *fuse_path, char *buf, size_t size, off_t offset,
 		    struct fuse_file_info *fi)
 {
