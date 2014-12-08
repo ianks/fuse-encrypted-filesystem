@@ -76,7 +76,6 @@ clean:
 	rm -f $(XATTR_EXAMPLES)
 	rm -f $(OPENSSL_EXAMPLES)
 	rm -f pa5-encfs
-	rm -f ./mnt/encryption_test.txt
 	rm -f *.o
 	rm -f *~
 	rm -f handout/*~
