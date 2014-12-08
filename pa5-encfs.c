@@ -348,21 +348,35 @@ static int xmp_read(const char *fuse_path, char *buf, size_t size, off_t offset,
 static int xmp_write(const char *fuse_path, const char *buf, size_t size,
 		     off_t offset, struct fuse_file_info *fi)
 {
-	char *path = prefix_path(fuse_path);
+	FILE *path_ptr, *tmpf;
+	char *path;
+	int res, action;
 
-	int fd;
-	int res;
+	path = prefix_path(fuse_path);
+	path_ptr = fopen(path, "w");
+	tmpf = tmpfile();
 
-	(void) fi;
-	fd = open(path, O_WRONLY);
-	if (fd == -1)
+
+	/* Something went terribly wrong if this is the case. */
+	if (path_ptr == NULL || tmpf == NULL)
 		return -errno;
 
-	res = pwrite(fd, buf, size, offset);
+	/* Read our tmpfile into the buffer. */
+	res = fwrite(buf, 1, size, tmpf);
 	if (res == -1)
 		res = -errno;
 
-	close(fd);
+	fflush(tmpf);
+	fseek(tmpf, offset, SEEK_SET);
+
+	/* Either encrypt, or just move along. */
+	action = is_encrypted ? ENCRYPT : PASS_THROUGH;
+	if (do_crypt(tmpf, path_ptr, action, password) == 0)
+		return -errno;
+
+	fclose(tmpf);
+	fclose(path_ptr);
+
 	return res;
 }
 
