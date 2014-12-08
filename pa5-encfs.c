@@ -305,21 +305,34 @@ static int xmp_open(const char *fuse_path, struct fuse_file_info *fi)
 static int xmp_read(const char *fuse_path, char *buf, size_t size, off_t offset,
 		    struct fuse_file_info *fi)
 {
-	char *path = prefix_path(fuse_path);
+	FILE *path_ptr, *tmpf;
+	char *path;
+	int res, action;
 
-	int fd;
-	int res;
+	path = prefix_path(fuse_path);
+	path_ptr = fopen(path, "r");
+	tmpf = tmpfile();
 
-	(void) fi;
-	fd = open(path, O_RDONLY);
-	if (fd == -1)
+	/* Either encrypt, or just move along. */
+	action = is_encrypted ? DECRYPT : PASS_THROUGH;
+	if (do_crypt(path_ptr, tmpf, action, password) == 0)
 		return -errno;
 
-	res = pread(fd, buf, size, offset);
+	/* Something went terribly wrong if this is the case. */
+	if (path_ptr == NULL || tmpf == NULL)
+		return -errno;
+
+	fflush(tmpf);
+	fseek(tmpf, offset, SEEK_SET);
+
+	/* Read our tmpfile into the buffer. */
+	res = fread(buf, 1, file_size(tmpf), tmpf);
 	if (res == -1)
 		res = -errno;
 
-	close(fd);
+	fclose(tmpf);
+	fclose(path_ptr);
+
 	return res;
 }
 
