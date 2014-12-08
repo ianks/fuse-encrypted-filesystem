@@ -20,4 +20,24 @@ describe 'Encrypted Filesystem' do
       expect(`cat mir/test1.txt`).to include 'foo'
     end
   end
+
+	describe 'encryption' do
+		before(:all) { `make encrypt` }
+		subject{ Dir['mnt/**/*'] }
+		let(:mirror_directory) { Dir['mir/**/*'] }
+
+		it 'encrypted file was created' do
+			`echo "encryption test" >> mir/encrypted_input.txt`
+			expect(subject).to contain_exactly 'mnt/test1.txt', 'mnt/test2.txt', 'mnt/encrypted_input.txt'
+			expect(mirror_directory).to contain_exactly 'mir/test1.txt', 'mir/test2.txt', 'mir/encrypted_input.txt'
+		end
+
+		it 'encrypted file contains proper text in fuse system' do
+			expect(`cat mir/encrypted_input.txt`).to include 'encryption test'
+		end
+
+		it 'created file is properly encrypted outside of the fuse system' do
+			expect(`cat mnt/encrypted_input.txt`).to_not include 'encryption test'
+		end
+	end
 end

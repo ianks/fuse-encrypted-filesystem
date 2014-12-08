@@ -63,7 +63,7 @@ lib/aes-crypt.o: lib/aes-crypt.c lib/aes-crypt.h
 	$(CC) $(CFLAGS) -o $@ $<
 
 unmount:
-	fusermount -u mir
+	fusermount -u ./mir
 
 debug: clean pa5-encfs
 	./pa5-encfs -d mnt/ mir/ -e password
@@ -75,6 +75,7 @@ clean:
 	rm -f $(FUSE_EXAMPLES)
 	rm -f $(XATTR_EXAMPLES)
 	rm -f $(OPENSSL_EXAMPLES)
+	rm -f mnt/encrypted_input.txt
 	rm -f pa5-encfs
 	rm -f *.o
 	rm -f *~
