@@ -24,6 +24,9 @@
 
 #define FUSE_USE_VERSION 28
 #define HAVE_SETXATTR
+#define ENCRYPT 1
+#define DECRYPT 0
+#define PASS_THROUGH (-1)
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -37,12 +40,13 @@
 #include <fuse.h>
 #include <stdio.h>
 #include <string.h>
-#include <stdlib.h>
 #include <unistd.h>
+#include <linux/limits.h>
 #include <fcntl.h>
 #include <dirent.h>
 #include <errno.h>
 #include <sys/time.h>
+#include "aes-crypt.h"
 #ifdef HAVE_SETXATTR
 #include <sys/xattr.h>
 #endif
@@ -50,6 +54,8 @@
 /* #define XMP_DATA ((struct xmp_state *) fuse_get_context()->private_data) */
 
 char* root_path;
+char* password;
+int is_encrypted;
 
 char *prefix_path(const char *path)
 {
@@ -286,7 +292,6 @@ static int xmp_utimens(const char *fuse_path, const struct timespec ts[2])
 static int xmp_open(const char *fuse_path, struct fuse_file_info *fi)
 {
 	char *path = prefix_path(fuse_path);
-
 	int res;
 
 	res = open(path, fi->flags);
@@ -474,19 +479,22 @@ int main(int argc, char *argv[])
 {
 	umask(0);
 
-	if(argc != 3){
-		fprintf(stderr, "ERR: Include only mirror and mount points.\n");
-		return EXIT_FAILURE;
-	}
-
-	if ((root_path = realpath(argv[argc-2], NULL)) == NULL){
+	/* ./pa5-encfs mir mnt -e password */
+	if ((root_path = realpath(argv[argc - 4], NULL)) == NULL){
 		fprintf(stderr, "Please enter a valid root directory name.\n");
 		return EXIT_FAILURE;
 	}
 
-	argv[argc-2] = argv[argc-1];
+	if ((password = argv[argc - 1]) == NULL){
+		fprintf(stderr, "Please enter an encryption password.\n");
+		return EXIT_FAILURE;
+	}
+
+	is_encrypted = 1;
+
+	argv[argc-4] = argv[argc-3];
 	argv[argc-1] = NULL;
-	argc--;
+	argc -= 3;
 
 	return fuse_main(argc, argv, &xmp_oper, NULL);
 }
