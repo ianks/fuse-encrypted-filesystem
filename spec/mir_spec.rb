@@ -24,6 +24,7 @@ describe 'Encrypted Filesystem' do
 	describe 'encryption' do
 		let(:fuse_dir_contents) { Dir['mir/**/*'] }
 		let(:filesystem_dir_contents) { Dir['mnt/**/*'] }
+    after(:all) { `rm mir/encryption_test.txt`}
 
 		it 'create a file to be encrypted' do
 			`echo "test encryption" >> mir/encryption_test.txt`
