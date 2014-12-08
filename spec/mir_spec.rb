@@ -20,4 +20,24 @@ describe 'Encrypted Filesystem' do
       expect(`cat mir/test1.txt`).to include 'foo'
     end
   end
+
+	describe 'encryption' do
+		let(:fuse_dir_contents) { Dir['mir/**/*'] }
+		let(:filesystem_dir_contents) { Dir['mnt/**/*'] }
+
+		it 'create a file to be encrypted' do
+			`echo "test encryption" >> mir/encryption_test.txt`
+			expect(fuse_dir_contents).to include 'mir/encryption_test.txt'
+			expect(filesystem_dir_contents).to include 'mnt/encryption_test.txt'
+		end
+
+		it 'file is readable in fuse' do
+			expect(`cat mir/encryption_test.txt`).to include "test encryption"
+		end
+
+		it 'file is encrypted in the base filesystem' do
+			expect(`cat mnt/encryption_test.txt`).to_not include "test encryption"
+		end
+
+	end
 end
