@@ -35,13 +35,13 @@ example/fusehello: example/fusehello.o
 example/fusexmp: example/fusexmp.o
 	$(CC) $(LFLAGS) $^ -o $@ $(LLIBSFUSE)
 
-pa5-encfs: pa5-encfs.o aes-crypt.o
+pa5-encfs: pa5-encfs.o lib/aes-crypt.o
 	$(CC) $(LFLAGS) $^ -o $@ $(LLIBSFUSE) $(LLIBSOPENSSL)
 
 example/xattr-util: example/xattr-util.o
 	$(CC) $(LFLAGS) $^ -o $@
 
-example/aes-crypt-util: example/aes-crypt-util.o aes-crypt.o
+example/aes-crypt-util: example/aes-crypt-util.o lib/aes-crypt.o
 	$(CC) $(LFLAGS) $^ -o $@ $(LLIBSOPENSSL)
 
 example/fusehello.o: example/fusehello.c
@@ -56,11 +56,11 @@ pa5-encfs.o: pa5-encfs.c
 example/xattr-util.o: example/xattr-util.c
 	$(CC) $(CFLAGS) -o $@ $<
 
-example/aes-crypt-util.o: example/aes-crypt-util.c aes-crypt.h
+example/aes-crypt-util.o: example/aes-crypt-util.c lib/aes-crypt.h
 	$(CC) $(CFLAGS) -o $@ $<
 
-aes-crypt.o: aes-crypt.c aes-crypt.h
-	$(CC) $(CFLAGS) $<
+lib/aes-crypt.o: lib/aes-crypt.c lib/aes-crypt.h
+	$(CC) $(CFLAGS) -o $@ $<
 
 unmount:
 	fusermount -u mir
