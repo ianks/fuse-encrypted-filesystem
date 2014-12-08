@@ -14,7 +14,7 @@ CFLAGSFUSE = -D_FILE_OFFSET_BITS=64 -I/usr/include/fuse
 LLIBSFUSE = -pthread -lfuse
 LLIBSOPENSSL = -lcrypto
 
-CFLAGS = -c -g -Wall -Wextra
+CFLAGS = -c -g -Wall
 LFLAGS = -g -Wall -Wextra
 
 FUSE_EXAMPLES = fusehello fusexmp pa5-encfs
@@ -35,8 +35,8 @@ fusehello: fusehello.o
 fusexmp: fusexmp.o
 	$(CC) $(LFLAGS) $^ -o $@ $(LLIBSFUSE)
 
-pa5-encfs: pa5-encfs.o
-	$(CC) $(LFLAGS) $^ -o $@ $(LLIBSFUSE)
+pa5-encfs: pa5-encfs.o aes-crypt.o
+	$(CC) $(LFLAGS) $^ -o $@ $(LLIBSFUSE) $(LLIBSOPENSSL)
 
 xattr-util: xattr-util.o
 	$(CC) $(LFLAGS) $^ -o $@
@@ -65,11 +65,11 @@ aes-crypt.o: aes-crypt.c aes-crypt.h
 unmount:
 	fusermount -u mir
 
-debug: pa5-encfs
-	./pa5-encfs -d mnt/ mir/
+debug: clean pa5-encfs
+	./pa5-encfs -d mnt/ mir/ -e password
 
-mount: pa5-encfs
-	./pa5-encfs mnt/ mir/
+mount: clean pa5-encfs
+	./pa5-encfs mnt/ mir/ -e password
 
 clean:
 	rm -f $(FUSE_EXAMPLES)
