@@ -1,15 +1,23 @@
-describe 'mir' do
-  before(:all) { `make pa5-encfs && ./pa5-encfs mnt/ mir/` }
-  after(:all) { `fusermount -u mir/ && make clean` }
+describe 'Encrypted Filesystem' do
+  before(:all) { `make mount` }
+  after(:all) { `make unmount && make clean` }
 
-  subject{ Dir['mir/**/*'] }
+  describe 'mounting' do
+    subject{ Dir['mir/**/*'] }
 
-  it 'contains files after mounting' do
-    expect(subject).to_not be_empty
+    it 'contains files after mounting' do
+      expect(subject).to_not be_empty
+    end
+
+    it 'contains the mirrored files after mounting' do
+      expect(subject).to contain_exactly 'mir/test1.txt', 'mir/test2.txt'
+    end
   end
 
-  it 'contains the mirrored files after mounting' do
-    expect(subject).to contain_exactly 'mir/test1.txt', 'mir/test2.txt',
-      'mir/nested/test3.txt', 'mir/nested'
+  describe 'decryption' do
+    it 'decrypts the files' do
+      expect(`cat mnt/test1.txt`).to_not include 'foo'
+      expect(`cat mir/test1.txt`).to include 'foo'
+    end
   end
 end
