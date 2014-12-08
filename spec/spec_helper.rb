@@ -5,7 +5,7 @@ RSpec.configure do |config|
 
   config.warnings = true
   config.default_formatter = 'doc' if config.files_to_run.one?
-  config.order = :random
+  config.order = :fixed
 
   Kernel.srand config.seed
 end
