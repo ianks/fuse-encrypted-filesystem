@@ -13,7 +13,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../aes-crypt.h"
+#include "../lib/aes-crypt.h"
 
 int main(int argc, char **argv)
 {
