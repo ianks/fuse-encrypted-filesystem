@@ -10,7 +10,7 @@ describe 'Encrypted Filesystem' do
     end
 
     it 'contains the mirrored files after mounting' do
-      expect(subject).to contain_exactly 'mir/test1.txt', 'mir/test2.txt'
+      expect(subject).to include 'mir/test1.txt', 'mir/test2.txt'
     end
   end
 
@@ -25,6 +25,7 @@ describe 'Encrypted Filesystem' do
 		let(:fuse_dir_contents) { Dir['mir/**/*'] }
 		let(:filesystem_dir_contents) { Dir['mnt/**/*'] }
     after(:all) { `rm mir/encryption_test.txt`}
+    after(:all) { `rm mir/encryption_test2.txt`}
 
 		it 'create a file to be encrypted' do
 			`echo "test encryption" >> mir/encryption_test.txt`
