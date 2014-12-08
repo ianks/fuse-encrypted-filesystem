@@ -40,5 +40,12 @@ describe 'Encrypted Filesystem' do
 			expect(`cat mnt/encryption_test.txt`).to_not include "test encryption"
 		end
 
+		it 'appending works' do
+			`echo "first input" >> mir/encryption_test2.txt`
+			`echo "second input" >> mir/encryption_test2.txt`
+			expect(`cat mir/encyption_test2.txt`).to include "first input"
+			expect(`cat mir/encyption_test2.txt`).to include "second input"
+		end
+
 	end
 end
