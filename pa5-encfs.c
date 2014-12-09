@@ -375,7 +375,7 @@ static int xmp_write(const char *fuse_path, const char *buf, size_t size,
 	int tmpf_descriptor;
 
 	path = prefix_path(fuse_path);
-	path_ptr = fopen(path, "r");
+	path_ptr = fopen(path, "r+");
 	tmpf = tmpfile();
 	tmpf_descriptor = fileno(tmpf);
 
@@ -393,7 +393,7 @@ static int xmp_write(const char *fuse_path, const char *buf, size_t size,
 			rewind(path_ptr);
 			rewind(tmpf);
 		}
-	} 
+	}
 
 	/* Read our tmpfile into the buffer. */
 	res = pwrite(tmpf_descriptor, buf, size, offset);
@@ -403,8 +403,6 @@ static int xmp_write(const char *fuse_path, const char *buf, size_t size,
 	/* Either encrypt, or just move along. */
 	action = is_encrypted ? ENCRYPT : PASS_THROUGH;
 
-	fclose(path_ptr);
-	path_ptr = fopen(path, "w");
 	if (do_crypt(tmpf, path_ptr, action, password) == 0)
 		return -errno;
 
