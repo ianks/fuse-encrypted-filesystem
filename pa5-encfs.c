@@ -61,7 +61,7 @@ char* password;
 int is_encrypted(const char *path)
 {
 	int val = 1;
-	int getxattr_ret = getxattr(path, "ENCFS", &val, sizeof(int));
+	int getxattr_ret = getxattr(path, "ENCFS", "true", (sizeof(char)*4));
 	int ret = (getxattr_ret >= 0);
 	fprintf(stderr, "getxattr %s\n", ret > 0 ? "succeeded" : "failed");
 	return ret;
@@ -70,9 +70,10 @@ int is_encrypted(const char *path)
 /* add_encrypted_attr: returns 1 on success, 0 on failure */
 int add_encrypted_attr(const char *path)
 {
+	int val = 1;
 	int ret;
 	int setxattr_ret;
-	setxattr_ret = setxattr(path, "ENCFS", NULL, 0, 0);
+	setxattr_ret = setxattr(path, "ENCFS", "true", (sizeof(char)*4), 0);
 	ret = setxattr_ret == 0;
 	return ret;
 }
