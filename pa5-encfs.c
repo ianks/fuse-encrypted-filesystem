@@ -389,10 +389,9 @@ static int xmp_write(const char *fuse_path, const char *buf, size_t size,
 		action = is_encrypted ? DECRYPT : PASS_THROUGH;
 		if (do_crypt(path_ptr, tmpf, action, password) == 0)
 			return --errno;
-		else {
-			rewind(path_ptr);
-			rewind(tmpf);
-		}
+
+		rewind(path_ptr);
+		rewind(tmpf);
 	}
 
 	/* Read our tmpfile into the buffer. */
