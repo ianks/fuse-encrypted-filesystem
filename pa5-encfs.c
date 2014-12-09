@@ -37,6 +37,7 @@
 #define _XOPEN_SOURCE 500
 #endif
 
+#include <assert.h>
 #include <fuse.h>
 #include <stdio.h>
 #include <string.h>
@@ -346,11 +347,11 @@ static int xmp_read(const char *fuse_path, char *buf, size_t size, off_t offset,
 }
 
 /* read_file: for debugging tempfiles */
-int read_file(FILE *file) 
+int read_file(FILE *file)
 {
 	int c;
 	int file_contains_something = 0;
-	FILE *read = file;
+	FILE *read = file; /* don't move original file pointer */
 	if (read) {
 		while ((c = getc(read)) != EOF) {
 			file_contains_something = 1;
@@ -359,6 +360,8 @@ int read_file(FILE *file)
 	}
 	if (!file_contains_something)
 		fprintf(stderr, "file was empty\n");
+	rewind(file);
+	/* fseek(tmpf, offset, SEEK_END); */
 	return 0;
 }
 
@@ -367,11 +370,12 @@ static int xmp_write(const char *fuse_path, const char *buf, size_t size,
 {
 	FILE *path_ptr, *tmpf;
 	char *path;
+	fpos_t tmpf_position, pathf_position;
 	int res, action;
 	int tmpf_descriptor;
 
 	path = prefix_path(fuse_path);
-	path_ptr = fopen(path, "w");
+	path_ptr = fopen(path, "r");
 	tmpf = tmpfile();
 	tmpf_descriptor = fileno(tmpf);
 
@@ -384,11 +388,15 @@ static int xmp_write(const char *fuse_path, const char *buf, size_t size,
 	read_file(tmpf);
 
 	/* if the file to write to exists, read it into the tempfile */
-	if (xmp_access(fuse_path, R_OK) == 0) {
+	if (xmp_access(fuse_path, R_OK) == 0 && file_size(path_ptr) > 0) {
 		fprintf(stderr, "file exists and is readable\n");
 		action = is_encrypted ? DECRYPT : PASS_THROUGH;
 		if (do_crypt(path_ptr, tmpf, action, password) == 0)
 			return --errno;
+		else {
+			rewind(path_ptr);
+			rewind(tmpf);
+		}
 	} else
 		fprintf(stderr, "file doesn't exist or is not readable\n");
 
@@ -411,6 +419,9 @@ static int xmp_write(const char *fuse_path, const char *buf, size_t size,
 	read_file(tmpf);
 	/* Either encrypt, or just move along. */
 	action = is_encrypted ? ENCRYPT : PASS_THROUGH;
+
+	fclose(path_ptr);
+	path_ptr = fopen(path, "w");
 	if (do_crypt(tmpf, path_ptr, action, password) == 0)
 		return -errno;
 
