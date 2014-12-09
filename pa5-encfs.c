@@ -37,6 +37,7 @@
 #define _XOPEN_SOURCE 500
 #endif
 
+#include <assert.h>
 #include <fuse.h>
 #include <stdio.h>
 #include <string.h>
@@ -345,16 +346,36 @@ static int xmp_read(const char *fuse_path, char *buf, size_t size, off_t offset,
 	return res;
 }
 
+/* read_file: for debugging tempfiles */
+int read_file(FILE *file)
+{
+	int c;
+	int file_contains_something = 0;
+	FILE *read = file; /* don't move original file pointer */
+	if (read) {
+		while ((c = getc(read)) != EOF) {
+			file_contains_something = 1;
+			putc(c, stderr);
+		}
+	}
+	if (!file_contains_something)
+		fprintf(stderr, "file was empty\n");
+	rewind(file);
+	/* fseek(tmpf, offset, SEEK_END); */
+	return 0;
+}
+
 static int xmp_write(const char *fuse_path, const char *buf, size_t size,
 		     off_t offset, struct fuse_file_info *fi)
 {
 	FILE *path_ptr, *tmpf;
 	char *path;
+	fpos_t tmpf_position, pathf_position;
 	int res, action;
 	int tmpf_descriptor;
 
 	path = prefix_path(fuse_path);
-	path_ptr = fopen(path, "w");
+	path_ptr = fopen(path, "r+");
 	tmpf = tmpfile();
 	tmpf_descriptor = fileno(tmpf);
 
@@ -364,23 +385,23 @@ static int xmp_write(const char *fuse_path, const char *buf, size_t size,
 		return -errno;
 
 	/* if the file to write to exists, read it into the tempfile */
-	if (xmp_access(fuse_path, F_OK)) {
+	if (xmp_access(fuse_path, R_OK) == 0 && file_size(path_ptr) > 0) {
 		action = is_encrypted ? DECRYPT : PASS_THROUGH;
 		if (do_crypt(path_ptr, tmpf, action, password) == 0)
 			return --errno;
+
+		rewind(path_ptr);
+		rewind(tmpf);
 	}
 
 	/* Read our tmpfile into the buffer. */
-	/* res = fwrite(buf, 1, size, tmpf); */
 	res = pwrite(tmpf_descriptor, buf, size, offset);
 	if (res == -1)
 		res = -errno;
 
-	fflush(tmpf);
-	fseek(tmpf, offset, SEEK_SET);
-
 	/* Either encrypt, or just move along. */
 	action = is_encrypted ? ENCRYPT : PASS_THROUGH;
+
 	if (do_crypt(tmpf, path_ptr, action, password) == 0)
 		return -errno;
 

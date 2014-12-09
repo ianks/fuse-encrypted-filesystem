@@ -44,8 +44,8 @@ describe 'Encrypted Filesystem' do
 		it 'appending works' do
 			`echo "first input" >> mir/encryption_test2.txt`
 			`echo "second input" >> mir/encryption_test2.txt`
-			expect(`cat mir/encyption_test2.txt`).to include "first input"
-			expect(`cat mir/encyption_test2.txt`).to include "second input"
+			expect(`cat mir/encryption_test2.txt`).to include "first input"
+			expect(`cat mir/encryption_test2.txt`).to include "second input"
 		end
 
 	end
