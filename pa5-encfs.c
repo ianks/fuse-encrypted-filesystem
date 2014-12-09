@@ -57,14 +57,24 @@
 char* root_path;
 char* password;
 
+/* is_encrypted: returns 1 if encryption succeeded, 0 otherwise */
 int is_encrypted(const char *path)
 {
-	return getxattr(path, "ENCFS", NULL, 0) > 0;
+	int val = 1;
+	int getxattr_ret = getxattr(path, "ENCFS", &val, sizeof(int));
+	int ret = (getxattr_ret >= 0);
+	fprintf(stderr, "getxattr %s\n", ret > 0 ? "succeeded" : "failed");
+	return ret;
 }
 
+/* add_encrypted_attr: returns 1 on success, 0 on failure */
 int add_encrypted_attr(const char *path)
 {
-	return setxattr(path, "ENCFS", NULL, 0, 0) == 0;
+	int ret;
+	int setxattr_ret;
+	setxattr_ret = setxattr(path, "ENCFS", NULL, 0, 0);
+	ret = setxattr_ret == 0;
+	return ret;
 }
 
 char *prefix_path(const char *path)
@@ -442,15 +452,17 @@ static int xmp_create(const char* fuse_path, mode_t mode,
 	int res;
 	res = creat(path, mode);
 
-	if(res == -1)
-		return -errno;
-
-	if (!add_encrypted_attr(path)){
-		fprintf(stderr, "Added xattr.\n");
+	if(res == -1) {
+		fprintf(stderr, "xmp_create: failed to creat\n");
 		return -errno;
 	}
 
 	close(res);
+
+	if (!add_encrypted_attr(path)){
+		fprintf(stderr, "xmp_create: failed to add xattr.\n");
+		return -errno;
+	}
 
 	return 0;
 }
