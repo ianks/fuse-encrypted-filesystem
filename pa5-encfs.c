@@ -60,21 +60,20 @@ char* password;
 /* is_encrypted: returns 1 if encryption succeeded, 0 otherwise */
 int is_encrypted(const char *path)
 {
-	int val = 1;
-	int getxattr_ret = getxattr(path, "ENCFS", "true", (sizeof(char)*4));
+	int getxattr_ret = getxattr(path, "user.encfs", "true", (sizeof(char)*4));
 	int ret = (getxattr_ret >= 0);
-	fprintf(stderr, "getxattr %s\n", ret > 0 ? "succeeded" : "failed");
+	fprintf(stderr, "\ngetxattr %s\n", ret > 0 ? "succeeded" : "failed");
 	return ret;
 }
 
 /* add_encrypted_attr: returns 1 on success, 0 on failure */
 int add_encrypted_attr(const char *path)
 {
-	int val = 1;
 	int ret;
 	int setxattr_ret;
-	setxattr_ret = setxattr(path, "ENCFS", "true", (sizeof(char)*4), 0);
+	setxattr_ret = setxattr(path, "user.encfs", "true", (sizeof(char)*4), 0);
 	ret = setxattr_ret == 0;
+	fprintf(stderr, "\nsetxattr %s\n", ret > 0 ? "succeeded" : "failed");
 	return ret;
 }
 
