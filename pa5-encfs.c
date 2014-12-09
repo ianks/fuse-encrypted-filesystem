@@ -380,22 +380,35 @@ static int xmp_write(const char *fuse_path, const char *buf, size_t size,
 	if (path_ptr == NULL || tmpf == NULL)
 		return -errno;
 
+	fprintf(stderr, "xmp_write: reading tempfile prior to doing anything to it\n");
+	read_file(tmpf);
+
 	/* if the file to write to exists, read it into the tempfile */
-	if (xmp_access(fuse_path, F_OK)) {
+	if (xmp_access(fuse_path, R_OK) == 0) {
+		fprintf(stderr, "file exists and is readable\n");
 		action = is_encrypted ? DECRYPT : PASS_THROUGH;
 		if (do_crypt(path_ptr, tmpf, action, password) == 0)
 			return --errno;
-	}
+	} else
+		fprintf(stderr, "file doesn't exist or is not readable\n");
+
+	fprintf(stderr, "xmp_write: reading tempfile after do_crypt, before pwrite\n");
+	read_file(tmpf);
 
 	/* Read our tmpfile into the buffer. */
+	/* fseek(tmpf, offset, SEEK_END); */
 	/* res = fwrite(buf, 1, size, tmpf); */
 	res = pwrite(tmpf_descriptor, buf, size, offset);
 	if (res == -1)
 		res = -errno;
 
-	/* fflush(tmpf); */
-	/* fseek(tmpf, offset, SEEK_SET); */
+	fprintf(stderr, "xmp_write: reading tempfile after pwrite\n");
+	read_file(tmpf);
 
+	/* fflush(tmpf); */
+
+	fprintf(stderr, "xmp_write: reading tempfile after fflush\n");
+	read_file(tmpf);
 	/* Either encrypt, or just move along. */
 	action = is_encrypted ? ENCRYPT : PASS_THROUGH;
 	if (do_crypt(tmpf, path_ptr, action, password) == 0)
