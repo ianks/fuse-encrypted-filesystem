@@ -345,6 +345,23 @@ static int xmp_read(const char *fuse_path, char *buf, size_t size, off_t offset,
 	return res;
 }
 
+/* read_file: for debugging tempfiles */
+int read_file(FILE *file) 
+{
+	int c;
+	int file_contains_something = 0;
+	FILE *read = file;
+	if (read) {
+		while ((c = getc(read)) != EOF) {
+			file_contains_something = 1;
+			putc(c, stderr);
+		}
+	}
+	if (!file_contains_something)
+		fprintf(stderr, "file was empty\n");
+	return 0;
+}
+
 static int xmp_write(const char *fuse_path, const char *buf, size_t size,
 		     off_t offset, struct fuse_file_info *fi)
 {
