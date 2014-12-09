@@ -59,13 +59,12 @@ char* password;
 
 int is_encrypted(const char *path)
 {
-	return 1;
-	/* return getxattr(path, "ENCFS", NULL, 0) > 0; */
+	return getxattr(path, "ENCFS", NULL, 0) > 0;
 }
 
 int add_encrypted_attr(const char *path)
 {
-	return setxattr(path, "ENCFS", NULL, 0, 0);
+	return setxattr(path, "ENCFS", NULL, 0, 0) == 0;
 }
 
 char *prefix_path(const char *path)
@@ -380,7 +379,6 @@ static int xmp_write(const char *fuse_path, const char *buf, size_t size,
 {
 	FILE *path_ptr, *tmpf;
 	char *path;
-	fpos_t tmpf_position, pathf_position;
 	int res, action;
 	int tmpf_descriptor;
 
@@ -446,10 +444,11 @@ static int xmp_create(const char* fuse_path, mode_t mode,
 
 	if(res == -1)
 		return -errno;
-	return 1;
 
-	/* if (add_encrypted_attr(path)) */
-	/* 	return -errno; */
+	if (!add_encrypted_attr(path)){
+		fprintf(stderr, "Added xattr.\n");
+		return -errno;
+	}
 
 	close(res);
 
