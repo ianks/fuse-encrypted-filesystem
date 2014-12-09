@@ -376,8 +376,8 @@ static int xmp_write(const char *fuse_path, const char *buf, size_t size,
 	if (res == -1)
 		res = -errno;
 
-	fflush(tmpf);
-	fseek(tmpf, offset, SEEK_SET);
+	/* fflush(tmpf); */
+	/* fseek(tmpf, offset, SEEK_SET); */
 
 	/* Either encrypt, or just move along. */
 	action = is_encrypted ? ENCRYPT : PASS_THROUGH;
