@@ -56,7 +56,17 @@
 
 char* root_path;
 char* password;
-int is_encrypted;
+
+int is_encrypted(const char *path)
+{
+	return 1;
+	/* return getxattr(path, "ENCFS", NULL, 0) > 0; */
+}
+
+int add_encrypted_attr(const char *path)
+{
+	return setxattr(path, "ENCFS", NULL, 0, 0);
+}
 
 char *prefix_path(const char *path)
 {
@@ -324,7 +334,7 @@ static int xmp_read(const char *fuse_path, char *buf, size_t size, off_t offset,
 	tmpf = tmpfile();
 
 	/* Either encrypt, or just move along. */
-	action = is_encrypted ? DECRYPT : PASS_THROUGH;
+	action = is_encrypted(path) ? DECRYPT : PASS_THROUGH;
 	if (do_crypt(path_ptr, tmpf, action, password) == 0)
 		return -errno;
 
@@ -386,7 +396,7 @@ static int xmp_write(const char *fuse_path, const char *buf, size_t size,
 
 	/* if the file to write to exists, read it into the tempfile */
 	if (xmp_access(fuse_path, R_OK) == 0 && file_size(path_ptr) > 0) {
-		action = is_encrypted ? DECRYPT : PASS_THROUGH;
+		action = is_encrypted(path) ? DECRYPT : PASS_THROUGH;
 		if (do_crypt(path_ptr, tmpf, action, password) == 0)
 			return --errno;
 
@@ -400,7 +410,7 @@ static int xmp_write(const char *fuse_path, const char *buf, size_t size,
 		res = -errno;
 
 	/* Either encrypt, or just move along. */
-	action = is_encrypted ? ENCRYPT : PASS_THROUGH;
+	action = is_encrypted(path) ? ENCRYPT : PASS_THROUGH;
 
 	if (do_crypt(tmpf, path_ptr, action, password) == 0)
 		return -errno;
@@ -433,8 +443,13 @@ static int xmp_create(const char* fuse_path, mode_t mode,
 
 	int res;
 	res = creat(path, mode);
+
 	if(res == -1)
 		return -errno;
+	return 1;
+
+	/* if (add_encrypted_attr(path)) */
+	/* 	return -errno; */
 
 	close(res);
 
@@ -556,8 +571,6 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "Please enter an encryption password.\n");
 		return EXIT_FAILURE;
 	}
-
-	is_encrypted = 1;
 
 	argv[argc-4] = argv[argc-3];
 	argv[argc-1] = NULL;

@@ -48,27 +48,27 @@
 
 static void printUsageGeneral(char* pgmName){
     fprintf(stderr, "Usage: %s %s\n",
-	    pgmName, USAGE_GENERAL);    
+	    pgmName, USAGE_GENERAL);
 }
 
 static void printUsageList(char* pgmName){
     fprintf(stderr, "Usage: %s %s\n",
-	    pgmName, USAGE_LIST);    
+	    pgmName, USAGE_LIST);
 }
 
 static void printUsageSet(char* pgmName){
     fprintf(stderr, "Usage: %s %s\n",
-	    pgmName, USAGE_SET);    
+	    pgmName, USAGE_SET);
 }
 
 static void printUsageGet(char* pgmName){
     fprintf(stderr, "Usage: %s %s\n",
-	    pgmName, USAGE_GET);    
+	    pgmName, USAGE_GET);
 }
 
 static void printUsageRem(char* pgmName){
     fprintf(stderr, "Usage: %s %s\n",
-	    pgmName, USAGE_REM);    
+	    pgmName, USAGE_REM);
 }
 
 int main(int argc, char* argv[]){
@@ -88,7 +88,7 @@ int main(int argc, char* argv[]){
 	printUsageGeneral(argv[0]);
 	exit(EXIT_FAILURE);
     }
-    
+
     /* Parse Command */
     if(!strcmp(argv[1], CMDLS)){
 	/* List Case */
@@ -214,11 +214,11 @@ int main(int argc, char* argv[]){
 		exit(EXIT_FAILURE);
 	    }
 	}
-	
+
 	/* Print Value */
 	tmpval[valsize] = '\0';
 	fprintf(stdout, "%s = %s\n", tmpstr, tmpval);
-	
+
 	/* Clean Up */
 	free(tmpval);
 	free(tmpstr);
