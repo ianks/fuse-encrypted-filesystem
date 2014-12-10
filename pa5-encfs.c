@@ -60,10 +60,11 @@ char* password;
 /* is_encrypted: returns 1 if encryption succeeded, 0 otherwise */
 int is_encrypted(const char *path)
 {
-	int getxattr_ret = getxattr(path, "user.encfs", "true", (sizeof(char)*4));
-	int ret = (getxattr_ret >= 0);
-	fprintf(stderr, "\ngetxattr %s\n", ret > 0 ? "succeeded" : "failed");
-	return ret;
+	FILE *res = fopen(path, "r+");
+	int getxattr_ret = fsetxattr(fileno(res), "user.encfs", "true", 4, 0);
+	fclose(res);
+
+	return getxattr_ret >= 0;
 }
 
 /* add_encrypted_attr: returns 1 on success, 0 on failure */
