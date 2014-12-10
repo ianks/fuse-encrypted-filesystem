@@ -3,7 +3,7 @@
   Copyright (C) 2001-2007  Miklos Szeredi <miklos@szeredi.hu>
 
   Minor modifications and note by Andy Sayler (2012) <www.andysayler.com>
-	Assignment worked on by: Michael Asnes, Ian Ker-Seymer and whatshisname?
+	Assignment worked on by: Michael Asnes, Ian Ker-Seymer and Austin Wood
 
   Source: fuse-2.8.7.tar.gz examples directory
   http://sourceforge.net/projects/fuse/files/fuse-2.X/

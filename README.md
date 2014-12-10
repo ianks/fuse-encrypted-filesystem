@@ -15,4 +15,4 @@ Encrypted Filesystem
 	2. $ make unmount
 	3. $ make clean
 
-Assignment worked on by: Michael Asnes, Ian Ker-Seymer and whatshisname?
+Assignment worked on by: Michael Asnes, Ian Ker-Seymer and Austin Wood.
