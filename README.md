@@ -11,7 +11,7 @@ Encrypted Filesystem
 
 ### Shortcuts:
 	1. $ make mount
-		* performs any necessary compilation and mounts the filesystem
+		* performs any necessary compilation and mounts the files from /mnt onto /mir
 	2. $ make unmount
 	3. $ make clean
 
